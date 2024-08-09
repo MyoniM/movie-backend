@@ -1,0 +1,448 @@
+openapi: 3.0.0
+info:
+  title: Your API
+  version: 1.0.0
+security:
+  - BearerAuth: []
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          error:
+            type: string
+            example: An error message
+          path:
+            type: string
+            nullable: true
+            example: parameterName
+          loc:
+            type: string
+            nullable: true
+            example: body
+  
+    Movie:
+      type: object
+      required:
+        - id
+        - title
+        - year
+        - poster
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        year:
+          type: string
+        rated:
+          type: string
+          nullable: true
+        genre:
+          type: string
+          nullable: true
+        imdbRating:
+          type: string
+          nullable: true
+        poster:
+          type: string
+          description: A signed download URL for the movie poster.
+
+    LoginSuccessResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        expiryDate:
+          type: string
+          format: date-time
+          example: 2024-08-08T12:34:56.789Z
+        id:
+          type: string
+          example: some-uuid
+        email:
+          type: string
+          example: user@example.com
+    RegisterSuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Registered successfully!
+    GetCurrentUserSuccessResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: some-uuid
+        email:
+          type: string
+          example: user@example.com
+    ChangePasswordSuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Password changed successfully
+paths:
+  /api/auth/login-user:
+    post:
+      summary: Login User
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Email or password is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSuccessResponse'
+
+  /api/auth/register-user:
+    post:
+      summary: Register User
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Email conflict occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Register success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterSuccessResponse'
+
+  /api/auth/current-user:
+    get:
+      summary: Get current user if logged in
+      tags:
+        - Authentication
+      produces:
+        - application/json
+      responses:
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCurrentUserSuccessResponse'
+
+  /api/auth/change-password:
+    post:
+      summary: Change Password
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - oldPassword
+                - newPassword
+              properties:
+                oldPassword:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: OldPassword is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '201':
+          description: Password Changed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangePasswordSuccessResponse'
+  /api/movies/lookup-movie:
+    get:
+      summary: Search for a movie to add to your library
+      description: Retrieve movie details based on a query.
+      tags:
+        - Movies
+      parameters:
+        - in: query
+          name: query
+          required: true
+          schema:
+            type: string
+          description: The search query for the movie.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imdbID:
+                    type: string
+                    description: The IMDb ID of the movie.
+                    example: "tt1234567"
+                  Title:
+                    type: string
+                    description: The title of the movie.
+                    example: "Inception"
+                  Year:
+                    type: string
+                    description: The year the movie was released.
+                    example: "2010"
+                  Rated:
+                    type: string
+                    description: The movie rating.
+                    example: "PG-13"
+                  Genre:
+                    type: string
+                    description: The genre of the movie.
+                    example: "Action, Adventure, Sci-Fi"
+                  imdbRating:
+                    type: string
+                    description: The IMDb rating of the movie.
+                    example: "8.8"
+                  Poster:
+                    type: string
+                    description: URL to the movie poster.
+                    example: "https://example.com/poster.jpg"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/movies/get-presigned-upload-url:
+    post:
+      tags:
+        - Movies
+      summary: Get presigned upload URL for movie poster
+      description: Get a presigned URL and fields for uploading a movie poster file to S3.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: string
+                  description: The name of the file to be uploaded.
+                  example: poster.jpg
+      responses:
+        '200':
+          description: Successfully generated presigned upload URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    description: The URL to which the POST request should be sent.
+                    example: https://example-bucket.s3.amazonaws.com
+                  fields:
+                    type: object
+                    description: Fields that need to be included as part of the POST request.
+                    additionalProperties:
+                      type: string
+                    example:
+                      key: "poster-upload-key"
+                      AWSAccessKeyId: "AKIAIOSFODNN7EXAMPLE"
+                      policy: "eyJleHBpcmF0aW9uIjogIjIwMTMtMD..."
+                      signature: "bWq2s1WEIj+..."
+                  key:
+                    type: string
+                    description: The object key for which the pre-signed URL was generated.
+                    example: poster-upload-key
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/movies/create:
+    post:
+      tags:
+        - Movies
+      summary: 'Create a new movie'
+      description: 'Adds a new movie to the database.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - year
+                - poster
+              properties:
+                title:
+                  type: string
+                year:
+                  type: string
+                rated:
+                  type: string
+                  nullable: true
+                genre:
+                  type: string
+                  nullable: true
+                imdbRating:
+                  type: string
+                  nullable: true
+                poster:
+                  type: string
+                  description: The object ID of the movie poster you uploaded to S3.
+      responses:
+        201:
+          description: 'Movie successfully created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/movies/update:
+    put:
+      tags:
+        - Movies
+      summary: 'Update an existing movie'
+      description: 'Updates an existing movie in the database.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - id
+              properties:
+                id:
+                  type: string
+                  description: The ID of the movie to update.
+                title:
+                  type: string
+                  nullable: true
+                year:
+                  type: string
+                  nullable: true
+                rated:
+                  type: string
+                  nullable: true
+                genre:
+                  type: string
+                  nullable: true
+                imdbRating:
+                  type: string
+                  nullable: true
+                poster:
+                  type: string
+                  description: The object ID of the movie poster you uploaded to S3.
+                  nullable: true
+      responses:
+        200:
+          description: 'Movie successfully created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/movies/get-all:
+    get:
+      tags:
+        - Movies
+      summary: 'Get all movies'
+      description: 'Retrieves all movies from the database.'
+      responses:
+        200:
+          description: 'Movies successfully retrieved'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'

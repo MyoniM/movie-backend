@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "target": "es2022",
+    "module": "commonjs",
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "composite": true, // required on the dependency project for references to work
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "strict": true,
+    "allowJs": false,
+    "outDir": "dist",
+    "noImplicitAny": false
+  },
+  "files": [
+    // by whitelisting the files to include, TS won't automatically
+    "package.json" // include all source below root, which is the default.
+  ],
+  "exclude": ["node_modules"]
+}
