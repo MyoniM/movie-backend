@@ -66,9 +66,8 @@ class MoviesService {
       ];
     }
     if (genre && genre.trim() !== '_') {
-      if (!filter.AND) {
-        filter.AND = [];
-      }
+      if (!filter.AND) filter.AND = [];
+
       filter.AND.push({
         genre: { contains: genre, mode: 'insensitive' },
       });
