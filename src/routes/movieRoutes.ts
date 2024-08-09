@@ -38,7 +38,13 @@ class MovieRoutes {
     this.router
       .route('/update')
       .put(userAuth, this.movieValidator.validateUpdateMovie(), asyncMiddleware(this.movieController.updateMovie));
-    this.router.route('/get-all').get(userAuth, asyncMiddleware(this.movieController.getAllMovies));
+    this.router
+      .route('/get-all')
+      .get(
+        userAuth,
+        this.movieValidator.validateMoviePaginatedQuery(),
+        asyncMiddleware(this.movieController.getAllMovies)
+      );
   }
 }
 

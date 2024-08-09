@@ -72,13 +72,25 @@ export default class MovieController {
   }
   async getAllMovies(req: any, res: Response, next: NextFunction) {
     const user = req.user as any;
-    const result = await this.moviesService.getAllMovies(user.id);
-    for (const movie of result) {
+    const { query, genre, pageSize = 20, offset = 0 } = req.query;
+
+    const result = await this.moviesService.getAllMovies({
+      query: query,
+      genre: genre,
+      userId: user.id,
+      offset: parseInt(offset) * 20,
+      pageSize: parseInt(pageSize),
+    });
+
+    const { total, items } = result;
+
+    for (const movie of items) {
       movie.poster = await this.s3StorageService.generateDownloadPreSignedUrl({
         objectKey: movie.poster,
         expiry: 3600,
       });
     }
-    return res.status(200).json(result);
+
+    return res.status(200).json({ total, items });
   }
 }

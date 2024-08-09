@@ -1,10 +1,8 @@
+import { AuthValidator } from './../validators/authValidator';
 import { Router } from 'express';
-
+import { asyncMiddleware } from '../middlewares/asyncHandler';
 import userAuth from '../middlewares/userAuth';
 import AuthController from '../controllers/AuthController';
-import { asyncMiddleware } from '../middlewares/asyncHandler';
-
-import { AuthValidator } from './../validators/authValidator';
 
 class AuthRoutes {
   router: Router;
@@ -19,7 +17,6 @@ class AuthRoutes {
     this.authController.registerUser = this.authController.registerUser.bind(this.authController);
     this.authController.getCurrentUser = this.authController.getCurrentUser.bind(this.authController);
     this.authController.changePassword = this.authController.changePassword.bind(this.authController);
-
     this.initializeRoutes();
   }
 

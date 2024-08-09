@@ -4,7 +4,7 @@
     "target": "es2022",
     "module": "commonjs",
     "resolveJsonModule": true,
-    "types": ["node"],
+    "types": ["jest", "node"],
     "composite": true, // required on the dependency project for references to work
     "esModuleInterop": true,
     "sourceMap": true,

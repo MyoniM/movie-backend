@@ -14,6 +14,9 @@ export class MovieValidator {
   validateLookupMovie() {
     return this.validate(lookUpSchema, 'query');
   }
+  validateMoviePaginatedQuery() {
+    return this.validate(moviePaginatedQuery, 'query');
+  }
   validateGetPresignedUploadUrl() {
     return this.validate(getPresignedUploadUrlSchema, 'body');
   }
@@ -65,11 +68,17 @@ const createMovieSchema = Joi.object({
 });
 const updateMovieSchema = Joi.object({
   id: Joi.string().required(),
-  // Rest of the fields are optional
   title: Joi.string().optional(),
   year: Joi.string().optional(),
   rated: Joi.string().optional(),
   genre: Joi.string().optional(),
   imdbRating: Joi.string().optional(),
   poster: Joi.string().optional(),
+});
+
+const moviePaginatedQuery = Joi.object({
+  offset: Joi.number().min(0).default(0),
+  pageSize: Joi.number().min(1).max(100).default(10),
+  query: Joi.string().allow(null, ''),
+  genre: Joi.string().allow(null, ''),
 });

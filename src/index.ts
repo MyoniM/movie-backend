@@ -1,14 +1,14 @@
-import fs from 'fs';
-import path from 'path';
-import cors from 'cors';
 import { urlencoded, json, Express } from 'express';
+import fs from 'fs';
+import { WriteStream } from 'fs';
+import path from 'path';
 
-import Routes from './routes';
-import logger from './logger';
-import passport from 'passport';
 import rateLimiter from './middlewares/rateLimit';
-import passportMiddleware from './middlewares/passport';
 import { unCaughtErrorHandler } from './handlers/errorHandler';
+import Routes from './routes';
+import passport from 'passport';
+import passportMiddleware from './middlewares/passport';
+import cors from 'cors';
 
 export default class Server {
   constructor(app: Express) {
@@ -18,21 +18,17 @@ export default class Server {
 
   public config(app: Express): void {
     const logPath = path.join(__dirname, '../logs');
-    if (!fs.existsSync(logPath)) fs.mkdirSync(logPath);
-
+    if (!fs.existsSync(logPath)) {
+      fs.mkdirSync(logPath);
+    }
+    app.use(urlencoded({ extended: true }));
     app.use(json());
     app.use(cors());
     app.use(rateLimiter()); //  apply to all requests
     app.use(passport.initialize());
-    app.use(urlencoded({ extended: true }));
 
     passportMiddleware(passport);
 
     app.use(unCaughtErrorHandler);
   }
 }
-
-process.on('beforeExit', function (err) {
-  logger.error(JSON.stringify(err));
-  console.error(err);
-});

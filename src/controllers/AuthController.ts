@@ -3,7 +3,6 @@ import { sign } from 'jsonwebtoken';
 import moment from 'moment';
 import { AuthService } from '../services/authService';
 import { jwtSecret } from '../config';
-import { hashPassword } from '../utils/auth';
 export default class AuthController {
   private readonly authService: AuthService;
   constructor(authService: AuthService) {

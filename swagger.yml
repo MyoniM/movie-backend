@@ -437,12 +437,41 @@ paths:
         - Movies
       summary: 'Get all movies'
       description: 'Retrieves all movies from the database.'
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: 'The number of items to skip before starting to collect the result set.'
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+          description: 'The number of items to return in the result set.'
+        - in: query
+          name: query
+          schema:
+            type: string
+            description: 'A search term to filter the movies. Can be null or empty string.'
+          allowEmptyValue: true
       responses:
         200:
           description: 'Movies successfully retrieved'
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Movie'
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: 'The total number of movies that match the query.'
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Movie'
+                    description: 'The list of movies for the current page.'

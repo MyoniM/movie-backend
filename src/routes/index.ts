@@ -24,4 +24,3 @@ export default class Routes {
     swaggerDocs(app);
   }
 }
-// "types": ["jest", "node"],

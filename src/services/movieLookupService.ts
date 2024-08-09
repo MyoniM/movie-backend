@@ -79,7 +79,7 @@ class MovieLookupService {
       if (!response.ok) throw new Error('Failed to fetch HD poster');
       return hdPosterUrl;
     } catch (error) {
-      // console.warn(`Falling back to standard poster for ${imdbID}: ${error}`);
+      console.warn(`Falling back to standard poster for ${imdbID}: ${error}`);
       return fallbackPoster;
     }
   }

@@ -1,15 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
-
 import express, { Express } from 'express';
-
 import ApiServer from './src/index';
-
 const app: Express = express();
 new ApiServer(app);
-
 const port: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
-
 app
   .listen(port, function () {
     console.info(`Server running on PORT ${port}`);
@@ -20,5 +15,4 @@ app
     } else {
       console.log(err);
     }
-    process.exit(1);
   });

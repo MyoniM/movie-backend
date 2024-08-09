@@ -1,7 +1,5 @@
 import prisma from '../db/db';
-import { compare } from 'bcryptjs';
-import { hashPassword } from '../utils/auth';
-import { Prisma } from '@prisma/client';
+
 export type CreateMovieParam = {
   title: string;
   year: string;
@@ -27,6 +25,7 @@ class MoviesService {
       },
     });
   }
+
   async updateMovie({ title, year, rated, genre, imdbRating, poster, userId, id }: CreateMovieParam & { id: string }) {
     return prisma?.movie.update({
       where: {
@@ -43,20 +42,56 @@ class MoviesService {
       },
     });
   }
-  async getAllMovies(userId: string) {
-    return prisma?.movie.findMany({
-      where: {
-        userId,
-      },
-      orderBy: {
-        dateCreated: 'desc',
-      },
-    });
+
+  async getAllMovies({
+    userId,
+    query,
+    genre,
+    pageSize,
+    offset,
+  }: {
+    userId: string;
+    query?: string;
+    genre?: string;
+    pageSize: number;
+    offset: number;
+  }) {
+    const filter: any = { userId };
+
+    if (query && query.trim() !== '') {
+      filter.AND = [
+        {
+          title: { contains: query, mode: 'insensitive' },
+        },
+      ];
+    }
+    if (genre && genre.trim() !== '_') {
+      if (!filter.AND) {
+        filter.AND = [];
+      }
+      filter.AND.push({
+        genre: { contains: genre, mode: 'insensitive' },
+      });
+    }
+
+    const [items, total] = await prisma.$transaction([
+      prisma.movie.findMany({
+        where: filter,
+        orderBy: { dateCreated: 'desc' },
+        skip: offset,
+        take: pageSize,
+      }),
+
+      prisma.movie.count({ where: filter }),
+    ]);
+
+    return { items, total };
   }
 }
 
 const createMoviesService = () => {
   return new MoviesService();
 };
+
 export type { MoviesService };
 export default createMoviesService;
